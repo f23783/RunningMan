@@ -22,13 +22,96 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
     {
         asset = InputActionAsset.FromJson(@"{
     ""name"": ""InputSC"",
-    ""maps"": [],
-    ""controlSchemes"": []
+    ""maps"": [
+        {
+            ""name"": ""Action Map"",
+            ""id"": ""3d1ea6d4-af59-4c59-bca1-50861b73820f"",
+            ""actions"": [
+                {
+                    ""name"": ""MovementAction"",
+                    ""type"": ""Value"",
+                    ""id"": ""2dc2fd32-96b5-4b15-a46d-9b1ceff025cf"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""Keyboard"",
+                    ""id"": ""55fde361-4493-4827-8634-4aa56597774f"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MovementAction"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""d0a1c069-2d60-4ffd-b811-e3bc7d76a732"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MovementAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""989d5db7-e584-4e31-a10a-d22c82b1cbf5"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MovementAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""0d9daac8-43b9-4348-84f4-951d1019e5d7"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MovementAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""47d45c91-7590-4e73-a900-b24042a1fe06"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MovementAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                }
+            ]
+        }
+    ],
+    ""controlSchemes"": [
+        {
+            ""name"": ""Control Scheme"",
+            ""bindingGroup"": ""Control Scheme"",
+            ""devices"": []
+        }
+    ]
 }");
+        // Action Map
+        m_ActionMap = asset.FindActionMap("Action Map", throwIfNotFound: true);
+        m_ActionMap_MovementAction = m_ActionMap.FindAction("MovementAction", throwIfNotFound: true);
     }
 
     ~@InputSC()
     {
+        UnityEngine.Debug.Assert(!m_ActionMap.enabled, "This will cause a leak and performance issues, InputSC.ActionMap.Disable() has not been called.");
     }
 
     public void Dispose()
@@ -85,5 +168,64 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
     public int FindBinding(InputBinding bindingMask, out InputAction action)
     {
         return asset.FindBinding(bindingMask, out action);
+    }
+
+    // Action Map
+    private readonly InputActionMap m_ActionMap;
+    private List<IActionMapActions> m_ActionMapActionsCallbackInterfaces = new List<IActionMapActions>();
+    private readonly InputAction m_ActionMap_MovementAction;
+    public struct ActionMapActions
+    {
+        private @InputSC m_Wrapper;
+        public ActionMapActions(@InputSC wrapper) { m_Wrapper = wrapper; }
+        public InputAction @MovementAction => m_Wrapper.m_ActionMap_MovementAction;
+        public InputActionMap Get() { return m_Wrapper.m_ActionMap; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(ActionMapActions set) { return set.Get(); }
+        public void AddCallbacks(IActionMapActions instance)
+        {
+            if (instance == null || m_Wrapper.m_ActionMapActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_ActionMapActionsCallbackInterfaces.Add(instance);
+            @MovementAction.started += instance.OnMovementAction;
+            @MovementAction.performed += instance.OnMovementAction;
+            @MovementAction.canceled += instance.OnMovementAction;
+        }
+
+        private void UnregisterCallbacks(IActionMapActions instance)
+        {
+            @MovementAction.started -= instance.OnMovementAction;
+            @MovementAction.performed -= instance.OnMovementAction;
+            @MovementAction.canceled -= instance.OnMovementAction;
+        }
+
+        public void RemoveCallbacks(IActionMapActions instance)
+        {
+            if (m_Wrapper.m_ActionMapActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        public void SetCallbacks(IActionMapActions instance)
+        {
+            foreach (var item in m_Wrapper.m_ActionMapActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_ActionMapActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    public ActionMapActions @ActionMap => new ActionMapActions(this);
+    private int m_ControlSchemeSchemeIndex = -1;
+    public InputControlScheme ControlSchemeScheme
+    {
+        get
+        {
+            if (m_ControlSchemeSchemeIndex == -1) m_ControlSchemeSchemeIndex = asset.FindControlSchemeIndex("Control Scheme");
+            return asset.controlSchemes[m_ControlSchemeSchemeIndex];
+        }
+    }
+    public interface IActionMapActions
+    {
+        void OnMovementAction(InputAction.CallbackContext context);
     }
 }
