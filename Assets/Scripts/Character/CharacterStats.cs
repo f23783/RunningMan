@@ -17,4 +17,18 @@ public class CharacterStats : MonoBehaviour
     private void Start() {
         health = maxHealth;
     }
+
+    private void Update() {
+        if (health <= 0)
+        {
+            Destroy(this.gameObject);
+        }
+    }
+
+    private void OnCollisionEnter(Collision other) {
+        if (other.gameObject.CompareTag("Obstacle"))
+        {
+            Destroy(this.gameObject);
+        }
+    }
 }
