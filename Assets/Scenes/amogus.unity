@@ -552,7 +552,7 @@ Transform:
   m_GameObject: {fileID: 922379483}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 3.01, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -600,9 +600,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45fc50f103cb15e458d5fe58f55fe095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 7
-  drag: 0
-  rotationSpeed: 0
+  moveSpeed: 25
+  drag: 2
+  airDrag: 0.15
+  rotationSpeed: 10
+  groundCheck: {fileID: 1667993536}
+  groundCheckDistance: 0.2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 1
+  jumpForce: 1.5
   orientation: {fileID: 499300973}
 --- !u!1 &1072413134
 GameObject:
@@ -975,7 +982,7 @@ Transform:
   m_GameObject: {fileID: 1303572230}
   serializedVersion: 2
   m_LocalRotation: {x: 0.4001229, y: 0.000000061073024, z: -0.000000026664205, w: 0.9164615}
-  m_LocalPosition: {x: 0, y: 8, z: -6}
+  m_LocalPosition: {x: 0, y: 11.01, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1223,7 +1230,7 @@ GameObject:
   m_Layer: 0
   m_Name: groundCheck
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -1236,7 +1243,7 @@ Transform:
   m_GameObject: {fileID: 1667993535}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1634,7 +1641,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a41635657942f414b98bd2cee6726cb0, type: 2}
+  - {fileID: 2100000, guid: e021327227b0dd34d886eb120e3ca5d3, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

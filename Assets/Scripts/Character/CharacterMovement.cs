@@ -1,23 +1,30 @@
-
 using UnityEngine;
 
 public class CharacterMovement : MonoBehaviour
 {
-    [Header("Movement")]
+    [Header("Movement Settings")]
     [Tooltip("Adjust to movement speed")]
-    public float moveSpeed;
-    public float drag;
+    public float moveSpeed = 10f;
+    public float drag = 5f;
+    public float airDrag = 2f;
+    public float rotationSpeed = 10f;
 
-    public float rotationSpeed;
+    [Header("Jump Settings")]
+    public Transform groundCheck;
+    public float groundCheckDistance = 0.3f;
+    public LayerMask groundLayer;
+    public float jumpForce = 5f;
 
+    [Header("References")]
     public Transform orientation;
 
-    float horizontalInput;
-    float verticalInput;
+    private float horizontalInput;
+    private float verticalInput;
+    private bool jumpInput;
+    private bool isGrounded;
 
-    Vector3 moveDirection;
-
-    Rigidbody rb;
+    private Vector3 moveDirection;
+    private Rigidbody rb;
 
     private void Start()
     {
@@ -27,49 +34,92 @@ public class CharacterMovement : MonoBehaviour
 
     private void Update()
     {
-        InputSystem();
-        SpeedControl();
-        rb.linearDamping = drag; // Linear damping düzeltildi
+        GetInputs();
+        CheckGround();
+        ApplyDrag();
     }
 
     private void FixedUpdate()
     {
-        PlayerMove();
+        MovePlayer();
+        Jump();
+        
     }
 
-    private void InputSystem()
+    private void GetInputs()
     {
         horizontalInput = Input.GetAxis("Horizontal");
         verticalInput = Input.GetAxis("Vertical");
+        //jumpInput = Input.GetKeyDown(KeyCode.Space);
+        if (Input.GetKey(KeyCode.Space))
+        {
+            jumpInput = true; // Sadece bir kez tetiklenir
+        }
     }
 
-
-
-private void PlayerMove()
-{
-    // Hareket yönü
-    moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
-    moveDirection = moveDirection.normalized;
-
-    // Kuvvet uygula
-    rb.AddForce(moveDirection * moveSpeed * 10f, ForceMode.Force);
-
-    // Dönüşü sadece hareket yönüne göre yap
-    if (moveDirection != Vector3.zero)
+    private void CheckGround()
     {
-        Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-        rb.rotation = Quaternion.Slerp(rb.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        // Cast a ray downwards to check if the player is grounded
+        
+        isGrounded = Physics.Raycast(groundCheck.position, Vector3.down, groundCheckDistance, groundLayer);
     }
-}
 
+    private void ApplyDrag()
+    {
+        rb.linearDamping = drag; // Set Rigidbody drag to simulate air resistance
+        if (jumpInput && isGrounded)
+        {
+            rb.linearDamping = airDrag;
+        }
+        else
+        {
+            rb.linearDamping = drag;
+        }
+    }
+
+    private void MovePlayer()
+    {
+        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+        moveDirection = moveDirection.normalized;
+
+        rb.AddForce(moveDirection * moveSpeed, ForceMode.Force);
+
+        // Rotate towards movement direction
+        if (moveDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            rb.rotation = Quaternion.Slerp(rb.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+        }
+    }
+
+    private void Jump()
+    {
+        if (jumpInput && isGrounded)
+        {
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            
+        }
+        jumpInput = false;
+    }
 
     private void SpeedControl()
     {
-        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        if (flatVel.magnitude > moveSpeed)
+        // Cap the player's speed
+        Vector3 flatVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        if (flatVelocity.magnitude > moveSpeed)
         {
-            Vector3 limitedVel = flatVel.normalized * moveSpeed;
-            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            Vector3 limitedVelocity = flatVelocity.normalized * moveSpeed;
+            rb.linearVelocity = new Vector3(limitedVelocity.x, rb.linearVelocity.y, limitedVelocity.z);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        // Visualize the ground check in the editor
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(groundCheck.position, groundCheck.position + Vector3.down * groundCheckDistance);
         }
     }
 }
