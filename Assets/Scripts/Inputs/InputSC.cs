@@ -31,17 +31,26 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
                     ""name"": ""MovementAction"",
                     ""type"": ""Value"",
                     ""id"": ""2dc2fd32-96b5-4b15-a46d-9b1ceff025cf"",
-                    ""expectedControlType"": ""Vector2"",
+                    ""expectedControlType"": ""Vector3"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""JumpAction"",
+                    ""type"": ""Button"",
+                    ""id"": ""7b2d1660-95dc-4901-84d4-2cd18c6f2678"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
                 {
                     ""name"": ""Keyboard"",
-                    ""id"": ""55fde361-4493-4827-8634-4aa56597774f"",
-                    ""path"": ""2DVector"",
+                    ""id"": ""ebbb8963-93b5-4074-b483-12ae96838eab"",
+                    ""path"": ""3DVector"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -51,8 +60,8 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""up"",
-                    ""id"": ""d0a1c069-2d60-4ffd-b811-e3bc7d76a732"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""id"": ""e50041a8-2f34-4321-832b-202dc8157e4b"",
+                    ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -62,8 +71,8 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""down"",
-                    ""id"": ""989d5db7-e584-4e31-a10a-d22c82b1cbf5"",
-                    ""path"": ""<Keyboard>/s"",
+                    ""id"": ""97c23260-556c-496a-b42a-d0d291890f7a"",
+                    ""path"": """",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -73,7 +82,7 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""left"",
-                    ""id"": ""0d9daac8-43b9-4348-84f4-951d1019e5d7"",
+                    ""id"": ""3ff323c6-37f2-4285-8dd5-9309fdf3b979"",
                     ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -84,7 +93,7 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""right"",
-                    ""id"": ""47d45c91-7590-4e73-a900-b24042a1fe06"",
+                    ""id"": ""fb2c9fe6-4642-4a04-b6e1-2ec11ec01dc1"",
                     ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
@@ -92,6 +101,39 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
                     ""action"": ""MovementAction"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""forward"",
+                    ""id"": ""d3eadeef-1ca3-4306-8d48-048dfd298aff"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MovementAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""backward"",
+                    ""id"": ""b23a838a-727a-48a0-beaa-4b95423223c4"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MovementAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""66ea70a8-584d-453c-936f-fafa576954b2"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""JumpAction"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -107,6 +149,7 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
         // Action Map
         m_ActionMap = asset.FindActionMap("Action Map", throwIfNotFound: true);
         m_ActionMap_MovementAction = m_ActionMap.FindAction("MovementAction", throwIfNotFound: true);
+        m_ActionMap_JumpAction = m_ActionMap.FindAction("JumpAction", throwIfNotFound: true);
     }
 
     ~@InputSC()
@@ -174,11 +217,13 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_ActionMap;
     private List<IActionMapActions> m_ActionMapActionsCallbackInterfaces = new List<IActionMapActions>();
     private readonly InputAction m_ActionMap_MovementAction;
+    private readonly InputAction m_ActionMap_JumpAction;
     public struct ActionMapActions
     {
         private @InputSC m_Wrapper;
         public ActionMapActions(@InputSC wrapper) { m_Wrapper = wrapper; }
         public InputAction @MovementAction => m_Wrapper.m_ActionMap_MovementAction;
+        public InputAction @JumpAction => m_Wrapper.m_ActionMap_JumpAction;
         public InputActionMap Get() { return m_Wrapper.m_ActionMap; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -191,6 +236,9 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
             @MovementAction.started += instance.OnMovementAction;
             @MovementAction.performed += instance.OnMovementAction;
             @MovementAction.canceled += instance.OnMovementAction;
+            @JumpAction.started += instance.OnJumpAction;
+            @JumpAction.performed += instance.OnJumpAction;
+            @JumpAction.canceled += instance.OnJumpAction;
         }
 
         private void UnregisterCallbacks(IActionMapActions instance)
@@ -198,6 +246,9 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
             @MovementAction.started -= instance.OnMovementAction;
             @MovementAction.performed -= instance.OnMovementAction;
             @MovementAction.canceled -= instance.OnMovementAction;
+            @JumpAction.started -= instance.OnJumpAction;
+            @JumpAction.performed -= instance.OnJumpAction;
+            @JumpAction.canceled -= instance.OnJumpAction;
         }
 
         public void RemoveCallbacks(IActionMapActions instance)
@@ -227,5 +278,6 @@ public partial class @InputSC: IInputActionCollection2, IDisposable
     public interface IActionMapActions
     {
         void OnMovementAction(InputAction.CallbackContext context);
+        void OnJumpAction(InputAction.CallbackContext context);
     }
 }

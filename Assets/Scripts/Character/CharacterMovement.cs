@@ -34,7 +34,6 @@ public class CharacterMovement : MonoBehaviour
 
     private void Update()
     {
-        GetInputs();
         CheckGround();
         ApplyDrag();
     }
@@ -44,17 +43,6 @@ public class CharacterMovement : MonoBehaviour
         MovePlayer();
         Jump();
         
-    }
-
-    private void GetInputs()
-    {
-        horizontalInput = Input.GetAxis("Horizontal");
-        verticalInput = Input.GetAxis("Vertical");
-        //jumpInput = Input.GetKeyDown(KeyCode.Space);
-        if (Input.GetKey(KeyCode.Space))
-        {
-            jumpInput = true; // Sadece bir kez tetiklenir
-        }
     }
 
     private void CheckGround()
@@ -77,10 +65,18 @@ public class CharacterMovement : MonoBehaviour
         }
     }
 
+    public Vector3 GetMovementVectorNormalized()
+    {
+        Vector3 moveValue = InputManager.Instance.movement.ReadValue<Vector3>();
+
+        moveValue.y = 0f;
+        
+        return moveValue;
+    }
+
     private void MovePlayer()
     {
-        moveDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
-        moveDirection = moveDirection.normalized;
+        moveDirection = GetMovementVectorNormalized();
 
         rb.AddForce(moveDirection * moveSpeed, ForceMode.Force);
 
@@ -94,12 +90,11 @@ public class CharacterMovement : MonoBehaviour
 
     private void Jump()
     {
-        if (jumpInput && isGrounded)
+        if (InputManager.Instance.jump.IsPressed() && isGrounded)
         {
-            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            
+             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
-        jumpInput = false;
+       
     }
 
     private void SpeedControl()

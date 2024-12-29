@@ -12,4 +12,10 @@ public class Rotateable : MonoBehaviour
         transform.Rotate(rotationSpeed * Time.deltaTime);
     }
 
+    private void OnCollisionEnter(Collision other) {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            other.gameObject.GetComponent<CharacterStats>().health -= 100;
+        }
+    }
 }
