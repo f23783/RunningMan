@@ -10,8 +10,16 @@ public class InputManager : MonoBehaviour
 
 
     private void Awake() {
-        Instance = this;
         
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else if (Instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+
         inputsSc = new InputSC();
 
         inputsSc.ActionMap.Enable();

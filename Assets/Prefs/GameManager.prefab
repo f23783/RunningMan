@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8084694050766407009}
   - component: {fileID: 3994690363827076252}
+  - component: {fileID: 3046656540110256970}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -62,3 +63,22 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+--- !u!114 &3046656540110256970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7726270609571174987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5962307edde73394eaeeb37a5869c939, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levels:
+  - levelID: 1
+    isLocked: 1
+  - levelID: 2
+    isLocked: 1
+  - levelID: 3
+    isLocked: 1
